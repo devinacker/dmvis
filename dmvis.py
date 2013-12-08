@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 """
-	Doom map drawer thingy!
+	dmvis - Doom map visualizer
 	by Revenant
-	pre-release secret gist version 2
 	
 	Scroll down for render settings.
 """
@@ -65,7 +64,11 @@ class DrawMap():
 	color_2s  = [144, 144, 144]
 
 	def __init__(self, map):
-		self.edit = MapEditor(map)
+		import struct
+		try:
+			self.edit = MapEditor(map)
+		except struct.error:
+			raise ValueError("Hexen / ZDoom maps are not currently supported")
 		
 		self.xmin = min([ v.x for v in self.edit.vertexes])
 		self.xmax = max([ v.x for v in self.edit.vertexes])
@@ -245,10 +248,10 @@ class DrawMap():
 		self.emit_frame(file, final = True)
 		file.close()
 		print("Rendered %d linedefs into %d frames in %f seconds." % (linenum, self.frames, clock() - start))
-		print("%s saved." % filename)
+		print("%s saved.\n" % filename)
 
 if __name__ == "__main__":
-	print("Doom map GIF maker thingy")
+	print("dmvis - Doom map visualizer")
 	print("by Devin Acker (Revenant), 2013\n")
 
 	# TODO: switches to change drawing parameters
@@ -264,13 +267,17 @@ if __name__ == "__main__":
 		wad.from_file(filename)
 		
 	except AssertionError:
-		stderr.write("Unable to load WAD file.")
+		stderr.write("Error: Unable to load WAD file.\n")
 		exit(-1)
 	
 	if mapname not in wad.maps:
-		stderr.write("Map %s not found in WAD." % mapname)
+		stderr.write("Error: Map %s not found in WAD.\n" % mapname)
 		exit(-1)
 	
-	draw = DrawMap(wad.maps[mapname])
-	draw.save("%s_%s.gif" % (filename, mapname))
+	try:
+		draw = DrawMap(wad.maps[mapname])
+		draw.save("%s_%s.gif" % (filename, mapname))
+	except ValueError as e:
+		stderr.write("Error: %s.\n" % e)
+		exit(-1)
 	
