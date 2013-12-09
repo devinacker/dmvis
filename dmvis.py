@@ -4,6 +4,26 @@
 	by Revenant
 	
 	Scroll down for render settings.
+	
+	Copyright (c) 2013 Devin Acker
+
+	Permission is hereby granted, free of charge, to any person obtaining a copy
+	of this software and associated documentation files (the "Software"), to deal
+	in the Software without restriction, including without limitation the rights
+	to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+	copies of the Software, and to permit persons to whom the Software is
+	furnished to do so, subject to the following conditions:
+
+	The above copyright notice and this permission notice shall be included in
+	all copies or substantial portions of the Software.
+
+	THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+	IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+	FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+	AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+	LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+	THE SOFTWARE.
 """
 
 from __future__ import print_function
@@ -163,8 +183,8 @@ class DrawMap():
 			sx = sorted(points, key = lambda i: i.x)
 			sy = sorted(points, key = lambda i: i.y)
 			bb = (int(sx[0].x) + self.border, int(sy[0].y) + self.border,
-				  int(sx[-1].x) + self.border + 2, int(sy[-1].y) + self.border + 2)
-				  # add 1 for minimum bbox size plus 1 more for line thickness
+			      int(sx[-1].x) + self.border + 2, int(sy[-1].y) + self.border + 2)
+			      # add 1 for minimum bbox size plus 1 more for line thickness
 			
 			self.frames += 1
 			emit_gce(self.loop_delay if final else self.frame_length)
@@ -215,7 +235,6 @@ class DrawMap():
 		file = open(filename, "wb")
 		
 		start = clock()
-		all_visited = []
 		
 		while len(lines_left) > 0:
 			try:
@@ -223,16 +242,13 @@ class DrawMap():
 				print(msg, end='')
 				
 				for line in self.trace_lines(lines_left[0]):
-					if line not in all_visited:
-						linenum += 1
-					if not self.draw_lines_once or line not in all_visited:
-						all_visited.append(line)
-						
+					if not self.draw_lines_once or line in lines_left:
 						self.draw_line(line)
 						if self.frame_per_line:
 							self.emit_frame(file)
 						
 						if line in lines_left:
+							linenum += 1
 							lines_left.remove(line)
 				
 				if not self.frame_per_line:
@@ -248,7 +264,7 @@ class DrawMap():
 		self.emit_frame(file, final = True)
 		file.close()
 		print("Rendered %d linedefs into %d frames in %f seconds." % (linenum, self.frames, clock() - start))
-		print("%s saved.\n" % filename)
+		print("%s saved." % filename)
 
 if __name__ == "__main__":
 	print("dmvis - Doom map visualizer")
