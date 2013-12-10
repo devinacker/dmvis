@@ -20,4 +20,5 @@ for mapname in wad.maps.keys():
 		draw.save("%s_%s.gif" % (filename, mapname))
 	except ValueError as e:
 		stderr.write("Error in %s: %s.\n" % (mapname, e))
-		exit(-1)
+		# try to go to the next map
+		# exit(-1)
