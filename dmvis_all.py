@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 from dmvis import DrawMap
 from omg   import WAD
-from sys   import argv
+from sys   import argv, stderr
 
 filename = argv[1]
 
