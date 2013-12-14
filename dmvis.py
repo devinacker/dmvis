@@ -34,40 +34,29 @@ from sys import argv, stderr, exit
 from PIL import Image, ImageDraw
 from PIL.GifImagePlugin import getheader, getdata
 from time import clock
-
-def usage():
-	stderr.write(
-	"""
-	Usage:
-	    dmvis.py wad map
-
-	Example:
-	    dmvis.py DOOM2.WAD MAP01
-	    dmvis.py DOOM.WAD E1M1
-	""".replace('\t', ''))
-	
-	exit(-1)
+from argparse import ArgumentParser
 
 class DrawMap():
-	# TODO: allow to change these from the command line probably
 	#
-	# ~ settings !!! ~
+	# default parameters (these can be changed from the command line)
 	#
 	# width of image in pixels (including borders)
 	image_width = 1024
 	# size of border in pixels
 	border = 8
-	# length of frame in seconds
-	frame_length = 0.04
+	# transparent background
+	trans = False
+	# length of frame in 1/100 seconds
+	frame_length = 4
 	# make gif loop
 	loop = True
 	# length of last frame (only matters when looping, obviously)
-	loop_delay = 5
+	loop_delay = 500
 	# draw one frame for each line (sloooowww)
 	# (otherwise draws one frame per group of adjacent lines, which is much faster)
-	frame_per_line = True
+	draw_shapes = False
 	# don't redraw 2-sided lines that have been drawn already (saves frames but can look weird)
-	draw_lines_once = True
+	draw_twice = False
 	# draw frame bounding boxes (debug)
 	show_bbox = False
 	
@@ -147,7 +136,7 @@ class DrawMap():
 			# disposition + transparency
 			file.write("\x05" if trans else "\x04")
 			
-			ti = min(int(time * 100), 65535)
+			ti = min(time, 65535)
 			file.write(chr(ti & 0xFF))
 			file.write(chr(ti >> 8))
 			
@@ -171,7 +160,7 @@ class DrawMap():
 				file.write("\x21\xFF\x0BNETSCAPE2.0\x03\x01\x00\x00\x00")
 			
 			self.frames += 1
-			emit_gce(self.frame_length, trans = False)
+			emit_gce(self.frame_length, trans = self.trans)
 			for s in getdata(self.frame):
 				file.write(s)
 				
@@ -242,16 +231,16 @@ class DrawMap():
 				print(msg, end='')
 				
 				for line in self.trace_lines(lines_left[0]):
-					if not self.draw_lines_once or line in lines_left:
+					if self.draw_twice or line in lines_left:
 						self.draw_line(line)
-						if self.frame_per_line:
+						if not self.draw_shapes:
 							self.emit_frame(file)
 						
 						if line in lines_left:
 							linenum += 1
 							lines_left.remove(line)
 				
-				if not self.frame_per_line:
+				if self.draw_shapes:
 					self.emit_frame(file)
 				
 				print('\r' + ' '*len(msg) + '\r', end='')
@@ -266,16 +255,57 @@ class DrawMap():
 		print("Rendered %d linedefs into %d frames in %f seconds." % (linenum, self.frames, clock() - start))
 		print("%s saved." % filename)
 
+def get_args():
+	ap = ArgumentParser()
+	ap.add_argument("filename", help="path to WAD file")
+	ap.add_argument("map",      help="name of map (ex. MAP01, E1M1)")
+	
+	ap.add_argument("-w", "--width", type=int, default=DrawMap.image_width,
+	                help="width of image, including borders (default: %(default)s)")
+	ap.add_argument("-b", "--border", type=int, default=DrawMap.border,
+	                help="size of border (default: %(default)s)")
+	ap.add_argument("-t", "--trans", action="store_true",
+	                help="make image background transparent")
+	ap.add_argument("-l", "--length", type=int, default=DrawMap.frame_length,
+	                help="length of frames in 1/100 sec. (default: %(default)s)")
+	ap.add_argument("-d", "--loop-delay", type=int, default=DrawMap.loop_delay,
+	                help="length of last frame in 1/100 sec. (default: %(default)s)")
+	ap.add_argument("-nl", "--no-loop", action="store_true",
+	                help="don't loop GIF")
+	ap.add_argument("-s", "--draw-shapes", action="store_true",
+	                help="add one frame per shape instead of per line")
+	ap.add_argument("-2", "--draw-twice", action="store_true",
+	                help="draw two-sided lines two times")
+	ap.add_argument("-bb", "--show-bbox", action="store_true",
+	                help="show frame bounding boxes (debug)")
+
+	if len(argv) < 3:
+		ap.print_help()
+		exit(-1)
+	
+	args = ap.parse_args()
+	
+	# apply optional arguments to DrawMap settings
+	DrawMap.image_width  = args.width
+	DrawMap.border       = args.border
+	DrawMap.trans        = args.trans
+	DrawMap.frame_length = args.length
+	DrawMap.loop_delay   = args.loop_delay
+	DrawMap.loop         = not args.no_loop
+	DrawMap.draw_shapes  = args.draw_shapes
+	DrawMap.draw_twice   = args.draw_twice
+	DrawMap.show_bbox    = args.show_bbox
+	
+	return args
+	
 if __name__ == "__main__":
 	print("dmvis - Doom map visualizer")
 	print("by Devin Acker (Revenant), 2013\n")
-
-	# TODO: switches to change drawing parameters
-	if len(argv) != 3:
-		usage()
 	
-	filename = argv[-2]
-	mapname = argv[-1].upper()
+	args = get_args()
+	
+	filename = args.filename
+	mapname  = args.map.upper()
 	
 	wad = WAD()
 	
