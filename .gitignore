@@ -1,3 +1,7 @@
 *.pyc
 *.wad
 *.exe
+*.pyd
+*.dll
+dist/library.zip
+build/
