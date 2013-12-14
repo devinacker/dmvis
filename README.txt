@@ -7,6 +7,10 @@ The GIFs are drawn by iterating over a map's linedefs in numerical order, while 
 
 The result isn't usually perfectly chronological, since areas being deleted/reworked/detailed, etc. can cause things to sometimes show up incomplete or slightly out-of-order - but it can still give a pretty interesting look at the process behind a lot of the original map designs.
 
+The maps/ directory contains example GIFs for almost all of the official maps.
+
+For Windows users, a py2exe compiled version is in the dist/ directory.
+
 This script uses the "omgifol" library by Fredrik Johansson to load maps. The original library is available at http://omgifol.sourceforge.net.
 
 If you want support for Hexen and ZDoom maps, you can use my personal fork, located here: https://github.com/devinacker/omgifol
