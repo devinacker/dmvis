@@ -73,10 +73,10 @@ class DrawMap():
 	color_2s  = [144, 144, 144]
 
 	def __init__(self, map):
-		import struct
+		from struct import error as StructError
 		try:
 			self.edit = MapEditor(map)
-		except struct.error:
+		except StructError:
 			raise ValueError("Hexen / ZDoom maps are not currently supported")
 		
 		self.xmin = min([ v.x for v in self.edit.vertexes])
