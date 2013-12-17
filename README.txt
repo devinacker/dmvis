@@ -14,5 +14,3 @@ For Windows users, a py2exe compiled version is in the dist/ directory.
 This script uses the "omgifol" library by Fredrik Johansson to load maps. The original library is available at http://omgifol.sourceforge.net.
 
 If you want support for Hexen and ZDoom maps, you can use my personal fork, located here: https://github.com/devinacker/omgifol
-
-(Note: Both versions of the library only support maps named ExMx or MAPxx currently.)
