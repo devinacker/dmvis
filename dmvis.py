@@ -309,6 +309,13 @@ if __name__ == "__main__":
 	
 	wad = WAD()
 	
+	# quick hack to support non-standard map names in omgifol 0.2
+	# (not required with my fork)
+	try:
+		omg.wad._mapheaders.append(mapname)
+	except AttributeError:
+		pass
+	
 	try:
 		wad.from_file(filename)
 		
