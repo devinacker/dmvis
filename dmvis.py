@@ -150,10 +150,13 @@ class DrawMap():
 		if len(self.old_lines) == 0:
 			header = getheader(self.frame)
 			# aaaaarrrrgggghhhh!!!
-			header[0] = "GIF89a" + header[0][6:]
+			if isinstance(header[0], list):
+				header = ("".join(header[0]),) + header[1:]
+			header = ("GIF89a" + header[0][6:],) + header[1:]
 			
 			for s in header:
-				file.write(s)
+				if s:
+					file.write(s)
 			
 			# AAAAAAAAAAARRRRRRGGGGGGHHHHHH!!!!!!!!
 			if self.loop:
