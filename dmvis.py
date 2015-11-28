@@ -132,16 +132,15 @@ class DrawMap():
 		
 		# write a "graphic control extension" with frame length
 		def emit_gce(time, trans = True):
-			file.write("\x21\xF9\x04")
+			file.write(b"\x21\xF9\x04")
 			# disposition + transparency
-			file.write("\x05" if trans else "\x04")
+			file.write(b"\x05" if trans else b"\x04")
 			
 			ti = min(time, 65535)
-			file.write(chr(ti & 0xFF))
-			file.write(chr(ti >> 8))
+			file.write(bytearray((ti & 0xFF, ti >> 8)))
 			
 			# transparent color 0
-			file.write("\x00\x00")
+			file.write(b"\x00\x00")
 		
 		# actually emit a GIF frame
 		# (this code adapted from gifmaker.py in PIL but with GIF89a extensions)
@@ -151,8 +150,8 @@ class DrawMap():
 			header = getheader(self.frame)
 			# aaaaarrrrgggghhhh!!!
 			if isinstance(header[0], list):
-				header = ("".join(header[0]),) + header[1:]
-			header = ("GIF89a" + header[0][6:],) + header[1:]
+				header = (bytes().join(header[0]),) + header[1:]
+			header = (b"GIF89a" + header[0][6:],) + header[1:]
 			
 			for s in header:
 				if s:
@@ -160,7 +159,7 @@ class DrawMap():
 			
 			# AAAAAAAAAAARRRRRRGGGGGGHHHHHH!!!!!!!!
 			if self.loop:
-				file.write("\x21\xFF\x0BNETSCAPE2.0\x03\x01\x00\x00\x00")
+				file.write(b"\x21\xFF\x0BNETSCAPE2.0\x03\x01\x00\x00\x00")
 			
 			self.frames += 1
 			emit_gce(self.frame_length, trans = self.trans)
@@ -193,7 +192,7 @@ class DrawMap():
 		self.draw.rectangle(bb, outline = 0, fill = 0)
 		
 		if final:
-			file.write(";")
+			file.write(b";")
 
 	def trace_lines(self, line, sector=None, visited=None):
 		if visited is None:
