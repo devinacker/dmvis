@@ -5,7 +5,7 @@
 	
 	Scroll down for render settings.
 	
-	Copyright (c) 2013 Devin Acker
+	Copyright (c) 2013-2018 Devin Acker
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -208,11 +208,12 @@ class DrawMap():
 				sector = min(self.edit.sidedefs[line.front].sector, self.edit.sidedefs[line.back].sector)
 		
 		# find another line with other connected point, same sector
-		next_lines = filter(lambda other: (line.vx_b == other.vx_a or line.vx_b == other.vx_b
-		                                   or line.vx_a == other.vx_a or line.vx_a == other.vx_b)
-		                              and (sector == self.edit.sidedefs[other.front].sector 
-		                                   or (other.two_sided and sector == self.edit.sidedefs[other.back].sector)),
-		                    self.edit.linedefs)
+		next_lines = filter(lambda other: line.vx_b == other.vx_a or line.vx_b == other.vx_b
+		                                   or line.vx_a == other.vx_a or line.vx_a == other.vx_b,
+		                    self.lines_in_sector[sector])
+
+		for other in next_lines:
+			self.lines_in_sector[sector].remove(other)
 		for other in next_lines:
 			if other not in visited:
 				visited = self.trace_lines(other, sector, visited)
@@ -226,6 +227,13 @@ class DrawMap():
 		file = open(filename, "wb")
 		
 		start = clock()
+		
+		# group lines by sector for faster searching later
+		self.lines_in_sector = [[] for i in range(len(self.edit.sectors))]
+		for line in self.edit.linedefs:
+			self.lines_in_sector[self.edit.sidedefs[line.front].sector].append(line)
+			if line.two_sided:
+				self.lines_in_sector[self.edit.sidedefs[line.back].sector].append(line)
 		
 		while len(lines_left) > 0:
 			try:
@@ -302,7 +310,7 @@ def get_args():
 	
 if __name__ == "__main__":
 	print("dmvis - Doom map visualizer")
-	print("by Devin Acker (Revenant), 2013\n")
+	print("by Devin Acker (Revenant), 2013-2018\n")
 	
 	args = get_args()
 	
