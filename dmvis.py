@@ -27,8 +27,6 @@
 """
 
 from __future__ import print_function
-# http://omgifol.sourceforge.net
-# http://files.funcrusherplus.net/static/omg/
 from omg import *
 from sys import argv, stderr, exit
 from PIL import Image, ImageDraw
@@ -208,12 +206,8 @@ class DrawMap():
 				sector = min(self.edit.sidedefs[line.front].sector, self.edit.sidedefs[line.back].sector)
 		
 		# find another line with other connected point, same sector
-		next_lines = filter(lambda other: line.vx_b == other.vx_a or line.vx_b == other.vx_b
-		                                   or line.vx_a == other.vx_a or line.vx_a == other.vx_b,
-		                    self.lines_in_sector[sector])
+		next_lines = self.lines_in_sector[sector][line.vx_a] + self.lines_in_sector[sector][line.vx_b]
 
-		for other in next_lines:
-			self.lines_in_sector[sector].remove(other)
 		for other in next_lines:
 			if other not in visited:
 				visited = self.trace_lines(other, sector, visited)
@@ -228,12 +222,24 @@ class DrawMap():
 		
 		start = clock()
 		
-		# group lines by sector for faster searching later
-		self.lines_in_sector = [[] for i in range(len(self.edit.sectors))]
-		for line in self.edit.linedefs:
-			self.lines_in_sector[self.edit.sidedefs[line.front].sector].append(line)
+		# group lines by sector and vertex for faster searching later
+		self.lines_in_sector = [{} for s in self.edit.sectors]
+		def addline_sv(sector, vertex, line):
+			if vertex not in self.lines_in_sector[sector]:
+				self.lines_in_sector[sector][vertex] = []
+			self.lines_in_sector[sector][vertex].append(line)
+		
+		def addline_s(sector, line):
+			addline_sv(sector, line.vx_a, line)
+			addline_sv(sector, line.vx_b, line)
+		
+		def addline(line):
+			addline_s(self.edit.sidedefs[line.front].sector, line)
 			if line.two_sided:
-				self.lines_in_sector[self.edit.sidedefs[line.back].sector].append(line)
+				addline_s(self.edit.sidedefs[line.back].sector, line)
+		
+		for line in self.edit.linedefs:
+			addline(line)
 		
 		while len(lines_left) > 0:
 			try:
