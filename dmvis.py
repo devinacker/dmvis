@@ -31,7 +31,7 @@ from omg import *
 from sys import argv, stderr, exit
 from PIL import Image, ImageDraw
 from PIL.GifImagePlugin import getheader, getdata
-from time import clock
+from time import perf_counter
 from argparse import ArgumentParser
 
 class DrawMap():
@@ -220,7 +220,7 @@ class DrawMap():
 		
 		file = open(filename, "wb")
 		
-		start = clock()
+		start = perf_counter()
 		
 		# group lines by sector and vertex for faster searching later
 		self.lines_in_sector = [{} for s in self.edit.sectors]
@@ -268,7 +268,7 @@ class DrawMap():
 		# emit the last frame with all sectors drawn
 		self.emit_frame(file, final = True)
 		file.close()
-		print("Rendered %d linedefs into %d frames in %f seconds." % (linenum, self.frames, clock() - start))
+		print("Rendered %d linedefs into %d frames in %f seconds." % (linenum, self.frames, perf_counter() - start))
 		print("%s saved." % filename)
 
 def get_args():
