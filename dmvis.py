@@ -5,7 +5,7 @@
 	
 	Scroll down for render settings.
 	
-	Copyright (c) 2013-2018 Devin Acker
+	Copyright (c) 2013-2022 Devin Acker
 
 	Permission is hereby granted, free of charge, to any person obtaining a copy
 	of this software and associated documentation files (the "Software"), to deal
@@ -316,7 +316,7 @@ def get_args():
 	
 if __name__ == "__main__":
 	print("dmvis - Doom map visualizer")
-	print("by Devin Acker (Revenant), 2013-2018\n")
+	print("by Devin Acker (Revenant), 2013-2022\n")
 	
 	args = get_args()
 	
