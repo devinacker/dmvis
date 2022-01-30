@@ -91,8 +91,8 @@ class DrawMap():
 		
 		# normalize vertices
 		for v in self.edit.vertexes:
-			v.x = (self.scale * v.x) - self.xmin
-			v.y = (self.scale * -v.y) - self.ymin
+			v.x = int(self.scale * v.x) - self.xmin
+			v.y = int(self.scale * -v.y) - self.ymin
 		
 		# initialize image / gif stuff		
 		self.frames = 0
@@ -171,8 +171,8 @@ class DrawMap():
 			
 			sx = sorted(points, key = lambda i: i.x)
 			sy = sorted(points, key = lambda i: i.y)
-			bb = (int(sx[0].x) + self.border, int(sy[0].y) + self.border,
-			      int(sx[-1].x) + self.border + 2, int(sy[-1].y) + self.border + 2)
+			bb = (sx[0].x + self.border, sy[0].y + self.border,
+			      sx[-1].x + self.border + 2, sy[-1].y + self.border + 2)
 			      # add 1 for minimum bbox size plus 1 more for line thickness
 			
 			self.frames += 1
